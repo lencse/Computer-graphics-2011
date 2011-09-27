@@ -20,13 +20,13 @@ var app = {
 		
 		// Actual (default) rotate angles:
 		alpha : 0,
-		beta : 0,
+		beta  : 0,
 		gamma : 0,
 		
 		// Delta of rotate angles:
-		dAlpha :	1 * Math.PI / 180 / 10,
-		dBeta :	2 * Math.PI / 180 / 10,
-		dGamma :	5 * Math.PI / 180 / 10,
+		dAlpha : 1 * Math.PI / 180 / 10,
+		dBeta  : 2 * Math.PI / 180 / 10,
+		dGamma : 5 * Math.PI / 180 / 10,
 		
 		vertices : [
 			graph.point3d( 0.5, -0.5,  0.5),
