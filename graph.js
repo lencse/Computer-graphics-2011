@@ -93,9 +93,7 @@ var graph = {
 	
 	boxPt : function(p0, p1) {
 		return {p0 : p0, p1 : p1};
-	},
-	
-	
+	}
 	
 };
 

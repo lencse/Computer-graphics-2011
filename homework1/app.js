@@ -15,30 +15,25 @@ var app = {
 		viewport : graph.box(null, null, null, null), // Set up when window is ready
 		projectionHeight : 4
 	},
-	
+		
 	data : {
 		
-		// Actual (default) rotate angles:
-		alpha : 0,
-		beta  : 0,
-		gamma : 0,
-		
-		// Delta of rotate angles:
-		dAlpha : 1 * Math.PI / 180 / 10,
-		dBeta  : 2 * Math.PI / 180 / 10,
-		dGamma : 5 * Math.PI / 180 / 10,
+		// Rotate angles:
+		alpha : {angle : 0, delta : 1 * Math.PI / 180 / 10},
+		beta  : {angle : 0, delta : 2 * Math.PI / 180 / 10},
+		gamma : {angle : 0, delta : 5 * Math.PI / 180 / 10},
 		
 		vertices : [
-			graph.point3d( 0.5, -0.5,  0.5),
-			graph.point3d( 0.5,  0.5,  0.5),
-			graph.point3d(-0.5,  0.5,  0.5),
-			graph.point3d(-0.5, -0.5,  0.5),
-			graph.point3d( 0.5, -0.5, -0.5),
-			graph.point3d( 0.5,  0.5, -0.5),
-			graph.point3d(-0.5,  0.5, -0.5),
-			graph.point3d(-0.5, -0.5, -0.5),
-			graph.point3d(0, 0,  1.5),
-			graph.point3d(0, 0, -1.5)
+			{pt : graph.point3d( 0.5, -0.5,  0.5), transformed : null},
+			{pt : graph.point3d( 0.5,  0.5,  0.5), transformed : null},
+			{pt : graph.point3d(-0.5,  0.5,  0.5), transformed : null},
+			{pt : graph.point3d(-0.5, -0.5,  0.5), transformed : null},
+			{pt : graph.point3d( 0.5, -0.5, -0.5), transformed : null},
+			{pt : graph.point3d( 0.5,  0.5, -0.5), transformed : null},
+			{pt : graph.point3d(-0.5,  0.5, -0.5), transformed : null},
+			{pt : graph.point3d(-0.5, -0.5, -0.5), transformed : null},
+			{pt : graph.point3d(0, 0,  1.5),			transformed : null},
+			{pt : graph.point3d(0, 0, -1.5),			transformed : null}
 		],
 		
 		facets : [
@@ -54,13 +49,20 @@ var app = {
 			{verticeIndexes : [6, 5, 9],		color: "#0a0"},
 			{verticeIndexes : [7, 6, 9],		color: "#050"},
 			{verticeIndexes : [4, 7, 9],		color: "#0a0"}
-		],
-		
-		transformedVertices : []
+		]
 		
 	},
 	
 	init : function() {
+		with (this.data) {
+			$.each(facets, function(i, facet) {
+				var v = [];
+				$.each(facet.verticeIndexes, function(j, vind) {
+					v.push(vertices[vind]);
+				});
+				facet.vertices = v;
+			});
+		}
 	},
 	
 	setViewport : function(x0, y0, x1, y1) {
@@ -81,17 +83,19 @@ var app = {
 	updateData : function() {
 		with (this) {
 			with (data) {
-				
-				/*for (i in vertices) {
-					transformedVertices[i] = vertices[i].rotate(
-						alpha, beta, gamma
-					);
-				}*/
-				for (alpha += dAlpha; alpha > 2 * Math.PI; alpha -= 2 * Math.PI);
-				for (beta  += dBeta;  beta  > 2 * Math.PI; beta  -= 2 * Math.PI);
-				for (gamma += dGamma; gamma > 2 * Math.PI; gamma -= 2 * Math.PI);
+				$.each(vertices, function(i, v) {
+					v.transformed = v.pt.rotate(alpha.angle, beta.angle, gamma.angle);
+				});
 			}
 		}
+		var self = this;
+		$.each(["alpha", "beta", "gamma"], function(i, name) {
+			for (
+				self.data[name].angle += self.data[name].delta;
+				self.data[name].angle > 2 * Math.PI;
+				self.data[name].angle -= 2 * Math.PI
+			);
+		});
 	},
 	
 	toScreen : function(p) {
@@ -103,25 +107,25 @@ var app = {
 	
 	drawFacet : function(facet) {
 		var cont = engine.canvasContext;
-		with (this) {
+		with (this) with(data) {
+			var f = facet;
 			cont.strokeStyle = "#000";
-			cont.fillStyle = facet.color;
+			cont.fillStyle = f.color;
 			cont.beginPath();
-			cont.moveToPt(toScreen(data.transformedVertices[facet.verticeIndexes[0]]));
-			for (var i = 0; i < facet.verticeIndexes.length; ++i) {
-				cont.lineToPt(toScreen(data.transformedVertices[facet.verticeIndexes[i]]));
-			}
-			cont.lineToPt(toScreen(data.transformedVertices[facet.verticeIndexes[0]]));
+			cont.moveToPt(toScreen(f.vertices[f.vertices.length - 1].transformed));
+			$.each(f.vertices, function(i, v) {
+				cont.lineToPt(toScreen(v.transformed));
+			});
 			cont.fill();
 			cont.stroke();
 		}
 	},
 	
 	facetVisible : function(facet) {
-		with (this) {
-			var a = data.transformedVertices[facet.verticeIndexes[0]];
-			var b = data.transformedVertices[facet.verticeIndexes[1]];
-			var c = data.transformedVertices[facet.verticeIndexes[2]];
+		with (this) with (data) {
+			var a = facet.vertices[0].transformed;
+			var b = facet.vertices[1].transformed;
+			var c = facet.vertices[2].transformed;
 			var ab = graph.point3d(b.x - a.x, b.y - a.y, b.z - a.z);
 			var bc = graph.point3d(c.x - b.x, c.y - b.y,	c.z - b.z);
 			var n = graph.point3d(
@@ -132,7 +136,7 @@ var app = {
 			var product =
 				n.x * (-b.x) +
 				n.y * (-b.y) +
-				n.z * (this.view.projectionHeight - b.z);
+				n.z * (view.projectionHeight - b.z);
 			return product > 0;
 		}
 	}
