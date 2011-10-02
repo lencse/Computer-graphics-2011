@@ -81,11 +81,12 @@ var app = {
 	updateData : function() {
 		with (this) {
 			with (data) {
-				for (i in vertices) {
-					transformedVertices[i] = graph.rotate(
-						alpha, beta, gamma, vertices[i]
+				
+				/*for (i in vertices) {
+					transformedVertices[i] = vertices[i].rotate(
+						alpha, beta, gamma
 					);
-				}
+				}*/
 				for (alpha += dAlpha; alpha > 2 * Math.PI; alpha -= 2 * Math.PI);
 				for (beta  += dBeta;  beta  > 2 * Math.PI; beta  -= 2 * Math.PI);
 				for (gamma += dGamma; gamma > 2 * Math.PI; gamma -= 2 * Math.PI);
@@ -94,10 +95,9 @@ var app = {
 	},
 	
 	toScreen : function(p) {
-		return graph.windowToViewport(
+		return p.centralProject(this.view.projectionHeight).windowToViewport(
 			this.view.window,
-			this.view.viewport,
-			graph.centralProject(this.view.projectionHeight, p)
+			this.view.viewport
 		);
 	},
 	

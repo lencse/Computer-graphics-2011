@@ -28,20 +28,63 @@ CanvasRenderingContext2D.prototype.spot = function(x, y, r) {
 	this.arc(x, y, r, 0, Math.PI*2, false);
 	this.closePath();
 	this.fill();
-}
+};
 
 CanvasRenderingContext2D.prototype.spotPt = function(p, r) {
 	this.spot(p.x, p.y, r);
-}
+};
 
 var graph = {
 	
 	point2d : function(x, y) {
-		return {x : x, y : y};
+		var self = this;
+		return {
+			x : x,
+			y : y,
+			windowToViewport : function(window, viewport) {
+				var wwith = window.p1.x - window.p0.x;
+				var wheight = window.p1.y - window.p0.y;
+				var vwith = viewport.p1.x - viewport.p0.x;
+				var vheight = viewport.p1.y - viewport.p0.y;
+				return self.point2d(
+					(this.x - window.p0.x) * vwith / wwith + viewport.p0.x,
+					viewport.p1.y - (this.y - window.p0.y) * vheight / wheight
+				);
+			}
+		};
 	},
 
 	point3d : function(x, y, z) {
-		return {x : x, y : y, z : z};
+		var self = this;
+		return {
+			
+			x : x,
+			y : y,
+			z : z,
+	
+			centralProject : function(s) {
+				return self.point2d(this.x * s  / (s - this.z), this.y * s / (s - this.z));
+			},
+			
+			rotate : function(alpha, beta, gamma) {
+				var p = self.point3d(
+					this.x,
+					this.y * Math.cos(alpha) - this.z * Math.sin(alpha),
+					this.y * Math.sin(alpha) + this.z * Math.cos(alpha)
+				);
+				p = self.point3d(
+					 p.x * Math.cos(beta) + p.z * Math.sin(beta),
+					 p.y,
+					-p.x * Math.sin(beta) + p.z * Math.cos(beta)
+				);
+				return self.point3d(
+					p.x * Math.cos(gamma) - p.y * Math.sin(gamma),
+					p.x * Math.sin(gamma) + p.y * Math.cos(gamma),
+					p.z
+				);
+			}
+
+		};
 	},
 	
 	box : function(x0, y0, x1, y1) {
@@ -52,38 +95,7 @@ var graph = {
 		return {p0 : p0, p1 : p1};
 	},
 	
-	windowToViewport : function(window, viewport, p) {
-		var wwith = window.p1.x - window.p0.x;
-		var wheight = window.p1.y - window.p0.y;
-		var vwith = viewport.p1.x - viewport.p0.x;
-		var vheight = viewport.p1.y - viewport.p0.y;
-		return this.point2d(
-			(p.x - window.p0.x) * vwith / wwith + viewport.p0.x,
-			viewport.p1.y - (p.y - window.p0.y) * vheight / wheight
-		);
-	},
-	
-	centralProject : function(s, p) {
-		return this.point2d(p.x * s  / (s - p.z), p.y * s / (s - p.z));
-	},
-	
-	rotate : function(alpha, beta, gamma, p) {
-		var p1 = this.point3d(
-			p.x,
-			p.y * Math.cos(alpha) - p.z * Math.sin(alpha),
-			p.y * Math.sin(alpha) + p.z * Math.cos(alpha)
-		);
-		var p2 = this.point3d(
-			 p1.x * Math.cos(beta) + p1.z * Math.sin(beta),
-			 p1.y,
-			-p1.x * Math.sin(beta) + p1.z * Math.cos(beta)
-		);
-		return this.point3d(
-			p2.x * Math.cos(gamma) - p2.y * Math.sin(gamma),
-			p2.x * Math.sin(gamma) + p2.y * Math.cos(gamma),
-			p2.z
-		);
-	}
 	
 	
 };
+
