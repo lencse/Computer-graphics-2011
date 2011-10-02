@@ -9,6 +9,7 @@
 	<title>First homework for Computer Graphics 2011</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel="stylesheet" href="default.css" />
+	<link rel="stylesheet" href="../jquery-ui/css/smoothness/jquery-ui-1.8.16.custom.css" />
 </head>
 <body>
 	
@@ -16,10 +17,33 @@
 		<canvas id="canv">Browser doesn't support canvas. :(</canvas>
 	</div>
 	
-	<div id="cpanel"></div>
+	<div id="cpanel">
+		<div>
+			α:<div id="alpha-slider" class="angle-slider"></div>
+		</div>
+		<div>
+			<p>β:</p><div id="beta-slider" class="angle-slider"></div>
+		</div>
+		<div>
+			<p>γ:</p><div id="gamma-slider" class="angle-slider"></div>
+		</div>
+		<div id="rotating-check">
+			<p>
+				<input type="checkbox" id="rot-check" checked="checked" />
+				<label for="rot-check">Rotating</label>
+			</p>
+		</div>
+		<div>
+			<p>h:</p><div id="pheight-slider"></div>
+		</div>
+	</div>
 	
+	<div id="anchor">
+		<button id="opencp-butt">Toggle control panel</button>
+	</div>
 	
 	<script src="../jquery.js"></script>
+	<script src="../jquery-ui/js/jquery-ui-1.8.16.custom.min.js"></script>
 	<script src="../graph.js"></script>
 	<script src="../engine.js"></script>
 	<script src="app.js"></script>

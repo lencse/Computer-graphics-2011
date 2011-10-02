@@ -20,6 +20,30 @@ body {
 	margin: 12px;
 }
 
-#cpanel {
-	display: none;
+#cpanel div p {
+	display: inline;
+}
+
+#cpanel div.ui-slider {
+	margin-left: 50px;
+	margin-top: -1em;
+}
+
+#rotating-check {
+	text-align: right;
+}
+
+#cpanel > div {
+	margin-bottom: 1em;
+}
+
+#anchor {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+#opencp-butt {
+	width: 20px;
+	height: 20px;
 }

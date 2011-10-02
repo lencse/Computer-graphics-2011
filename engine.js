@@ -53,7 +53,7 @@ var engine =  {
 
 };
 
-$(document).ready(function() {
+$(function() {
 	app.init();
 	engine.onWindowResize();
 	setInterval(

@@ -7,7 +7,8 @@
 var app = {
 	
 	settings : {
-		refreshInterval : 1 // millisecs
+		refreshInterval : 1, // millisecs
+		rotating : true
 	},
 
 	view : {
@@ -32,23 +33,23 @@ var app = {
 			{pt : graph.point3d( 0.5,  0.5, -0.5), transformed : null},
 			{pt : graph.point3d(-0.5,  0.5, -0.5), transformed : null},
 			{pt : graph.point3d(-0.5, -0.5, -0.5), transformed : null},
-			{pt : graph.point3d(0, 0,  1.5),			transformed : null},
-			{pt : graph.point3d(0, 0, -1.5),			transformed : null}
+			{pt : graph.point3d(0, 0,  1.5),       transformed : null},
+			{pt : graph.point3d(0, 0, -1.5),       transformed : null}
 		],
 		
 		facets : [
-			{verticeIndexes : [0, 4, 5, 1],	color: "#fff"},
-			{verticeIndexes : [1, 5, 6, 2],	color: "#aaa"},
-			{verticeIndexes : [2, 6, 7, 3],	color: "#555"},
-			{verticeIndexes : [3, 7, 4, 0],	color: "#aaa"},
-			{verticeIndexes : [0, 1, 8],		color: "#f00"},
-			{verticeIndexes : [1, 2, 8],		color: "#a00"},
-			{verticeIndexes : [2, 3, 8],		color: "#500"},
-			{verticeIndexes : [3, 0, 8],		color: "#a00"},
-			{verticeIndexes : [5, 4, 9],		color: "#0f0"},
-			{verticeIndexes : [6, 5, 9],		color: "#0a0"},
-			{verticeIndexes : [7, 6, 9],		color: "#050"},
-			{verticeIndexes : [4, 7, 9],		color: "#0a0"}
+			{verticeIndexes : [0, 4, 5, 1],	color: "#fff", vertices : null},
+			{verticeIndexes : [1, 5, 6, 2],	color: "#aaa", vertices : null},
+			{verticeIndexes : [2, 6, 7, 3],	color: "#555", vertices : null},
+			{verticeIndexes : [3, 7, 4, 0],	color: "#aaa", vertices : null},
+			{verticeIndexes : [0, 1, 8],     color: "#f00", vertices : null},
+			{verticeIndexes : [1, 2, 8],     color: "#a00", vertices : null},
+			{verticeIndexes : [2, 3, 8],     color: "#500", vertices : null},
+			{verticeIndexes : [3, 0, 8],     color: "#a00", vertices : null},
+			{verticeIndexes : [5, 4, 9],     color: "#0f0", vertices : null},
+			{verticeIndexes : [6, 5, 9],     color: "#0a0", vertices : null},
+			{verticeIndexes : [7, 6, 9],     color: "#050", vertices : null},
+			{verticeIndexes : [4, 7, 9],     color: "#0a0", vertices : null}
 		]
 		
 	},
@@ -87,15 +88,21 @@ var app = {
 					v.transformed = v.pt.rotate(alpha.angle, beta.angle, gamma.angle);
 				});
 			}
+			if (settings.rotating) {
+				var self = this;
+				$.each(["alpha", "beta", "gamma"], function(i, name) {
+					for (
+						self.data[name].angle += self.data[name].delta;
+						self.data[name].angle > 2 * Math.PI;
+						self.data[name].angle -= 2 * Math.PI
+					);
+					$("#" + name + "-slider").slider(
+						"option",
+						"value",
+						self.data[name].angle * 180 / Math.PI);
+				});
+			}
 		}
-		var self = this;
-		$.each(["alpha", "beta", "gamma"], function(i, name) {
-			for (
-				self.data[name].angle += self.data[name].delta;
-				self.data[name].angle > 2 * Math.PI;
-				self.data[name].angle -= 2 * Math.PI
-			);
-		});
 	},
 	
 	toScreen : function(p) {
@@ -107,7 +114,7 @@ var app = {
 	
 	drawFacet : function(facet) {
 		var cont = engine.canvasContext;
-		with (this) with(data) {
+		with (this) with (data) {
 			var f = facet;
 			cont.strokeStyle = "#000";
 			cont.fillStyle = f.color;
@@ -142,3 +149,45 @@ var app = {
 	}
 
 };
+
+$(function() {
+	$("#cpanel").dialog({
+		title : "Control Panel",
+		position : [0, 0],
+		autoOpen : false,
+		width : 350
+	});
+	$(".angle-slider").slider({
+		min : 0,
+		max : 360,
+		step : 2,
+		slide : function(e, ui) {
+			app.data[e.target.id.replace("-slider", "")].angle =
+				$(e.target).slider("option", "value") * Math.PI / 180;
+		}
+	});
+	$(".angle-slider").slider("option", "disabled", true);
+	$("#pheight-slider").slider({
+		min : 2,
+		max : 8,
+		step : 0.2,
+		value : app.view.projectionHeight,
+		change : function(e, ui) {
+			app.view.projectionHeight = $(e.target).slider("option", "value");
+		}
+	});
+	$("#opencp-butt").button({
+		icons : {primary : "ui-icon-wrench"},
+		text : false,
+		width : 16
+	});
+});
+
+$("#rot-check").click(function() {
+	app.settings.rotating = this.checked;
+	$(".angle-slider").slider("option", "disabled", this.checked);
+});
+
+$("#opencp-butt").click(function(e, ui) {
+	$("#cpanel").dialog($("#cpanel").dialog("isOpen") ? "close" : "open");
+});
