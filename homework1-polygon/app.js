@@ -81,6 +81,24 @@ var app = {
 		}
 	},
 	
+	onWindowResize : function(width, height) {
+		var wwidth = this.view.window.p1.x - this.view.window.p0.x;
+		var wheight = this.view.window.p1.y - this.view.window.p0.y;
+		var x0, y0, x1, y1;
+		if (wwidth / wheight > width / height) {
+			x0 = 0;
+			y0 = (height - wheight * width / wwidth) / 2;
+			x1 = width - 1;
+			y1 = (height + wheight * width / wwidth) / 2;
+		} else {
+			x0 = (width - wwidth * height / wheight) / 2;
+			y0 = 0;
+			x1 = (width + wwidth * height / wheight) / 2;
+			y1 = height - 1;
+		}
+		this.setViewport(x0, y0, x1, y1);
+	},
+	
 	updateData : function() {
 		with (this) {
 			with (data) {
