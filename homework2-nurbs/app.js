@@ -7,7 +7,7 @@
 var app = {
 	
 	settings : {
-		refreshInterval : 10, // millisecs
+		refreshInterval : 1, // millisecs
 	},
 
 	view : {
@@ -24,7 +24,15 @@ var app = {
 		},
 		u : function(i) {
 			with (this) {
-				return i / (n() - 1);
+				if (i < degree) {
+					return i - degree;
+				}
+				if (i >= degree && i <= m() + degree - 1) {
+					return data.knots[i - degree];
+				}
+				if (i > m() + degree - 1) {
+					return i - degree;
+				}
 			}
 		},
 		p : function(i) {
@@ -49,7 +57,7 @@ var app = {
 					return 0;
 				}
 				if (i >= degree && i <= m() + degree - 1) {
-					return 1;
+					return data.weights[i - degree];
 				}
 				if (i > m() + degree - 1) {
 					return 0;
@@ -89,30 +97,44 @@ var app = {
 	},
 		
 	data : {
-		controlPointAnchors : []
+		controlPointAnchors : [],
+		knots : [],
+		weights : []
+	
 	},
 	
 	init : function() {
 		this.model.data = this.data;
-		this.addControlPoint(100, 100);
+		/*this.addControlPoint(100, 100);
 		this.addControlPoint(300, 100);
 		this.addControlPoint(300, 300);
-		this.addControlPoint(100, 300);
-		/*this.addControlPoint(100, 80);
+		this.addControlPoint(100, 300);*/
+		
+		this.addControlPoint(100, 80);
 		this.addControlPoint(700, 225);
 		this.addControlPoint(335, 300);
-		this.addControlPoint(650, 450);*/
+		this.addControlPoint(650, 450);
+
+		/*this.addControlPoint(400, 250);
+		this.addControlPoint(400, 400);
+		this.addControlPoint(250, 400);
+		this.addControlPoint(100, 400);
+		this.addControlPoint(100, 250);
+		this.addControlPoint(100, 100);
+		this.addControlPoint(250, 100);
+		this.addControlPoint(400, 100);
+		this.addControlPoint(400, 250);
 		
-		with (this) with(model) {
-			/*for (i = 0; i < model.n(); ++i) {
-				console.log(i, model.w(i), model.u(i), model.p(i).x, model.p(i).y);
-			}*/
-		}
+		this.data.weights[1] = Math.sqrt(2) / 2;
+		this.data.weights[3] = Math.sqrt(2) / 2;
+		this.data.weights[5] = Math.sqrt(2) / 2;
+		this.data.weights[7] = Math.sqrt(2) / 2;*/
+		
 	},
 	
 	drawAll : function() {
 		with (this) with (model) {
-			var cont = engine.canvasContext;
+			var cont = engine.canvasContext; 
 			cont.strokeStyle = "#444";
 			cont.lineWidth = 1;
 			cont.beginPath();
@@ -126,9 +148,10 @@ var app = {
 			cont.strokeStyle = "#fff";
 			cont.lineWidth = 2;
 			cont.beginPath();
-			cont.moveToPt(s(0));
+			cont.moveToPt(s(u(0)));
 			var t;
-			for (t = 0; t <= 1; t += 0.01) {
+			var d = (u(n() - 1) - u(0)) / 100;
+			for (t = u(0); t <= u(n() - 1); t += d) {
 				cont.lineToPt(s(t));
 			}
 			cont.stroke();
@@ -142,7 +165,13 @@ var app = {
 	},
 	
 	addControlPoint : function(x, y) {
-		this.data.controlPointAnchors.push(ui.addControlPointAnchor(x, y));
+		with (this) with(data) {
+			var i;
+			knots.push(knots.length);
+			weights.push(1);
+			controlPointAnchors.push(ui.addControlPointAnchor(x, y));
+			ui.updateSliders();
+		}
 	}
 
 };
