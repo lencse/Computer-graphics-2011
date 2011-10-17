@@ -60,6 +60,7 @@ var ui = {
 	updateSliders : function() {
 		with (app.data) {
 			var i;
+			$(".degree-label").html(app.model.degree - 1);
 			for (i = 0; i < weights.length; ++i) {
 				$("#p" + i + " .weight-label").html(weights[i]);
 				$("#p" + i + " .weight-slider").slider("option", "value", weights[i]);
@@ -92,14 +93,22 @@ $(function() {
 		text : false,
 		width : 16
 	});
+	$("#inc-degree").button().click(function(e, ui) {
+		app.model.degree++;
+		ui.updateSliders();
+	});
+	$("#dec-degree").button().click(function(e, ui) {
+		app.model.degree--;
+		ui.updateSliders();
+	});
+	$("#opencp-butt").click(function(e, ui) {
+		$("#cpanel").dialog($("#cpanel").dialog("isOpen") ? "close" : "open");
+	});
+
+	$("#canv").click(function(e, ui) {
+		if (e.shiftKey) {
+			app.addControlPoint(e.clientX, e.clientY);
+		}
+	});
 });
 
-$("#opencp-butt").click(function(e, ui) {
-	$("#cpanel").dialog($("#cpanel").dialog("isOpen") ? "close" : "open");
-});
-
-$("#canv").click(function(e, ui) {
-	if (e.shiftKey) {
-		app.addControlPoint(e.clientX, e.clientY);
-	}
-});
