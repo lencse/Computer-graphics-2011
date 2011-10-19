@@ -1,0 +1,54 @@
+/* 
+ *  Document   : default.css
+ *  Created on : 2011.10.19. 08:56
+ *  Author     : Lencse
+ */
+
+body {
+	background: #000;
+}
+
+#canv-cont {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+#canv {
+	margin: 12px;
+}
+
+#cpanel div p {
+	display: inline;
+}
+
+#cpanel div.ui-slider {
+	margin-left: 80px;
+	margin-top: -1em;
+}
+
+#rotating-check {
+	text-align: right;
+}
+
+#cpanel > div {
+	margin-bottom: 1em;
+}
+
+#anchor {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+#opencp-butt {
+	width: 20px;
+	height: 20px;
+}
+
+#cpanel h3 {
+	font-size: 14px;
+}
+
